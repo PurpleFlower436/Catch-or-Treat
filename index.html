@@ -27,9 +27,15 @@
             type: Phaser.AUTO,
             width: 400,
             height: 600,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: {y: 300},
+                    debug: false
+                }
+            },
             backgroundColor: '#F28C28',
-            scene: [
-                {key: 'MainScene', preload: preload, create:create, update:update}, CatchTreats, GameOver]
+            scene: [CatchTreats, GameOver]
         };
 
         var game = new Phaser.Game(config);

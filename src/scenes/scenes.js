@@ -51,6 +51,8 @@ class CatchTreats extends Phaser.Scene {
         this.load.image('milky_way_candy', 'assets/milky_way.png');
 
         this.load.image('twix', 'assets/twix.png');
+
+        this.load.image('goody_bag', 'assets/trick_or_treat_goody_bag.jpg')
     }
 
     timeFormat(time) {
@@ -83,17 +85,20 @@ class CatchTreats extends Phaser.Scene {
         const three_musketeers_candy = this.add.image(300, 300, '3_musketeers');
     
     
-        const treat_bag = this.add.rectangle(300, 554, 115, 90, 0x000000);
+       // const treat_bag = this.add.rectangle(300, 554, 115, 90, 0x000000);
     
-    
-    
+        
+        
         this.movement_keys = this.input.keyboard.addKeys({
-            'left': Phaser.Input.Keyboard.KeyCodes.left,
-            'right': Phaser.Input.Keyboard.KeyCodes.right
+            'left': Phaser.Input.Keyboard.KeyCodes.LEFT,
+            'right': Phaser.Input.Keyboard.KeyCodes.RIGHT
         });
     
     
-       
+        this.player = this.physics.add.sprite(300, 554, 'goody_bag').setScale(0.5);
+
+
+        this.player.setCollideWorldBounds(true);
 
         this.timer = 120;
         this.timer_string_format = this.add.text(32, 32, 'Time:' + this.timeFormat(this.timer), {
@@ -123,22 +128,22 @@ class CatchTreats extends Phaser.Scene {
     
     
     
-    }
+    
 
     update() 
     {
-        /*
+        
         if (this.movement_keys.left.isDown) {
-            this.treat_bag.setVelocityX(-120);
+            this.player.setVelocityX(-120);
         }
         else if (this.movement_keys.right.isDown) {
-            this.treat_bag.setVelocityX(120);
+            this.player.setVelocityX(120);
         }
         else {
-            this.treat_bag.setVelocityX(0);
+            this.player.setVelocityX(0);
         }
 
-        */
+        
 
         
 
@@ -147,7 +152,7 @@ class CatchTreats extends Phaser.Scene {
 
     }
 
-
+}
 
 
 
