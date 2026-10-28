@@ -52,7 +52,7 @@ class CatchTreats extends Phaser.Scene {
 
         this.load.image('twix', 'assets/twix.png');
 
-        this.load.image('goody_bag', 'assets/trick_or_treat_goody_bag.jpg')
+        this.load.image('goody_bag', 'assets/trick_or_treat_goody-bag.png')
     }
 
     timeFormat(time) {
@@ -71,6 +71,24 @@ class CatchTreats extends Phaser.Scene {
         return `${padded_minutes}:${padded_seconds}`;
 
     }
+
+    spawnCandies() {
+
+        const random_candy_key = this.candy_keys[Math.floor(Math.random() * this.candy_keys.length)];
+       
+        const random_x = Phaser.Math.Between(45, 400-90);
+       
+        const candy = this.candies.create(random_x, 70, random_candy_key);
+
+        candy.setVelocityY(Phaser.Math.Between(20, 120));
+
+
+
+    }
+
+
+
+
     create() 
     {
 
@@ -80,13 +98,16 @@ class CatchTreats extends Phaser.Scene {
         // 4. When the candies collide with the treat bag then we add +10 points to the score 
         // 5. if candies hit the bottom of the screen then we destroy them 
     
-        // We move the treat bag with the left and right arrow keys.
-        // the treat bag must stay between the bounds of left edge and right edge so it doesnt fall off the screen
+       
         const three_musketeers_candy = this.add.image(300, 300, '3_musketeers');
-    
-    
-       // const treat_bag = this.add.rectangle(300, 554, 115, 90, 0x000000);
-    
+        
+        const milky_way_candy = this.add.image(220, 340, 'milky_way_candy');
+
+        const twix_candy = this.add.image(180, 360, 'twix');
+
+        const hundred_grand_candy = this.add.image(160, 380, '100_grand');
+        
+      
         
         
         this.movement_keys = this.input.keyboard.addKeys({
@@ -95,13 +116,13 @@ class CatchTreats extends Phaser.Scene {
         });
     
     
-        this.player = this.physics.add.sprite(300, 554, 'goody_bag').setScale(0.5);
+        this.player = this.physics.add.sprite(300, 554, 'goody_bag');
 
 
         this.player.setCollideWorldBounds(true);
 
         this.timer = 120;
-        this.timer_string_format = this.add.text(32, 32, 'Time:' + this.timeFormat(this.timer), {
+        this.timer_string_format = this.add.text(10, 10, 'Time:' + this.timeFormat(this.timer), {
             fontSize: '32px',
             fill: '#ffffff'
         });
@@ -112,12 +133,30 @@ class CatchTreats extends Phaser.Scene {
             callbackScope: this,
             loop: true
         });
+
+        this.candy_keys = ['twix', 'milky_way_candy', '3_musketeers', '100_grand'];
+       
+        
+        this.candies = this.physics.add.group();
+            
+        //})
+
+        this.time.addEvent({
+            delay: 1000,
+            callback: this.spawnCandies,
+            callbackScope: this,
+            loop: true
+        });
+
+
+
+
     
     }
     
         onEvent() {
             
-            this.timer -= 1
+         //   this.timer -= 1
             this.timer_string_format.setText('Time:' + this.timeFormat(this.timer));
             
             if (this.timer == 0) {
@@ -125,7 +164,7 @@ class CatchTreats extends Phaser.Scene {
             }
         }
     
-    
+        
     
     
     
