@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Screen</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
+    <script src ="src/scenes/scenes.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+
+
+
+
+
+
+</head>
+<body>
+
+    <script type="text/javascript">
+
+        var config = {
+            type: Phaser.AUTO,
+            width: 400,
+            height: 600,
+            backgroundColor: '#F28C28',
+            scene: [
+                {key: 'MainScene', preload: preload, create:create, update:update}, CatchTreats, GameOver]
+        };
+
+        var game = new Phaser.Game(config);
+        function preload () 
+        {
+
+        }
+
+
+        function create ()
+        {
+            this.scene.start('catch_treats_minigame');
+        }
+
+        function update()
+        {
+
+        }
+
+
+
+
+
+
+
+    </script>
+    
+</body>
+</html>
