@@ -72,17 +72,36 @@ class CatchTreats extends Phaser.Scene {
 
     }
 
+
+    collectCandies(player,candy ) {
+
+        candy.disableBody(true, true);
+        console.log(this.score, typeof this.score);
+        if (this.random_candy_key == 'twix') {
+            this.score += 50;
+
+        } else if (this.random_candy_key == 'milky_way') {
+            this.score += 20;
+        } else if (this.random_candy_key == '3_musketeers') {
+            this.score += 15;
+        } else {
+            this.score += 20;
+        }
+        console.log(this.score);
+    }
+
+
     spawnCandies() {
 
-        const random_candy_key = this.candy_keys[Math.floor(Math.random() * this.candy_keys.length)];
+        this.random_candy_key = this.candy_keys[Math.floor(Math.random() * this.candy_keys.length)];
        
         const random_x = Phaser.Math.Between(45, 400-90);
        
-        const candy = this.candies.create(random_x, 70, random_candy_key);
+        const candy = this.candies.create(random_x, 70, this.random_candy_key);
 
         candy.setVelocityY(Phaser.Math.Between(20, 120));
 
-
+        this.physics.add.overlap(this.player, candy, this.collectCandies, null, this);
 
     }
 
@@ -99,16 +118,8 @@ class CatchTreats extends Phaser.Scene {
         // 5. if candies hit the bottom of the screen then we destroy them 
     
        
-        const three_musketeers_candy = this.add.image(300, 300, '3_musketeers');
-        
-        const milky_way_candy = this.add.image(220, 340, 'milky_way_candy');
-
-        const twix_candy = this.add.image(180, 360, 'twix');
-
-        const hundred_grand_candy = this.add.image(160, 380, '100_grand');
-        
-      
-        
+        const twix_life_1 = this.add.image(265, 20, 'twix');
+        const twix_life_2 = this.add.image(350, 20, 'twix');
         
         this.movement_keys = this.input.keyboard.addKeys({
             'left': Phaser.Input.Keyboard.KeyCodes.LEFT,
@@ -139,8 +150,9 @@ class CatchTreats extends Phaser.Scene {
         
         this.candies = this.physics.add.group();
             
-        //})
+        
 
+        this.score = 0;
         this.time.addEvent({
             delay: 1000,
             callback: this.spawnCandies,
@@ -149,6 +161,7 @@ class CatchTreats extends Phaser.Scene {
         });
 
 
+       
 
 
     
