@@ -16,7 +16,7 @@ class GameOver extends Phaser.Scene {
         this.game_over_panel = this.add.rectangle(200, 250, 320, 320, 0x2E1B4A);
         this.score_box = this.add.rectangle(200, 190, 200, 100, 0x120A1E).setStrokeStyle(3, 0xFFB02E);
         this.score_label = this.add.text(170, 110, 'Score', {fontSize: 28});
-    
+        
         this.movie_box = this.add.rectangle(200, 325, 230, 60, 0x20113A).setStrokeStyle(2, 0x5B3A8A);
         this.move_label = this.add.text(100,272, 'Your Halloween movie:', {fontSize: 14});
     
@@ -53,6 +53,15 @@ class CatchTreats extends Phaser.Scene {
         this.load.image('twix', 'assets/twix.png');
 
         this.load.image('goody_bag', 'assets/trick_or_treat_goody-bag.png')
+
+        this.load.image('apple', 'assets/apple.png');
+        this.load.image('raisin_box', 'assets/raisin_box.png')
+
+        this.load.audio('collect_candies_sound', 'assets/collect_candies_sound.wav');
+
+     //   this.load.audio('hit_by_enemies_sound', 'assets/hit_by_enemy_sound.mp3');
+
+
     }
 
     timeFormat(time) {
@@ -73,22 +82,42 @@ class CatchTreats extends Phaser.Scene {
     }
 
 
-    collectCandies(player,candy ) {
+    collectCandies(player, candy ) {
 
         candy.disableBody(true, true);
         console.log(this.score, typeof this.score);
         if (this.random_candy_key == 'twix') {
             this.score += 50;
+         
 
         } else if (this.random_candy_key == 'milky_way') {
             this.score += 20;
+         
         } else if (this.random_candy_key == '3_musketeers') {
             this.score += 15;
+           
         } else {
             this.score += 20;
+           
         }
         console.log(this.score);
     }
+
+    hitByEnemies(player, enemy) {
+        enemy.disableBody(true, true);
+
+        if (this.random_enemy_key == 'apple') {
+            this.score -= 30;
+        //    this.sound.play('hit_by_enemies_sound');
+        }
+        else {
+            this.score -= 15;
+        //    this.sound.play('hit_by_enemies_sound');
+        }
+    }
+
+
+
 
 
     spawnCandies() {
@@ -101,11 +130,28 @@ class CatchTreats extends Phaser.Scene {
 
         candy.setVelocityY(Phaser.Math.Between(20, 120));
 
-        this.physics.add.overlap(this.player, candy, this.collectCandies, null, this);
-
+        
     }
 
 
+    spawnEnemies() {
+
+       
+        this.random_enemy_key = this.enemies_keys[Math.floor(Math.random() * this.enemies_keys.length)];
+
+        const random_x = Phaser.Math.Between(45, 400 - 90);
+
+        const enemy = this.enemies.create(random_x, 70, this.random_enemy_key);
+
+        enemy.setVelocityY(Phaser.Math.Between(20, 120));
+
+        
+
+
+
+
+
+    }
 
 
     create() 
@@ -149,8 +195,14 @@ class CatchTreats extends Phaser.Scene {
        
         
         this.candies = this.physics.add.group();
+
+        this.physics.add.overlap(this.player, this.candies, this.collectCandies, null, this);
             
+        this.enemies_keys = ['apple', 'raisin_box'];
+
+        this.enemies = this.physics.add.group();
         
+        this.physics.add.overlap(this.player, this.enemies, this.hitByEnemies, null, this);
 
         this.score = 0;
         this.time.addEvent({
@@ -161,7 +213,12 @@ class CatchTreats extends Phaser.Scene {
         });
 
 
-       
+        this.time.addEvent({
+            delay:2000,
+            callback:this.spawnEnemies,
+            callbackScope:this,
+            loop:true
+        });
 
 
     
