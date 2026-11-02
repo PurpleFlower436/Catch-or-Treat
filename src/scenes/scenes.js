@@ -70,24 +70,7 @@ class CatchTreats extends Phaser.Scene {
         
     }
 
-    hitByEnemies(player, enemy) {
-        
-        enemy.destroy();
-        if (enemy.texture.key == 'apple') {
-            this.score -= 30;
-            if (this.score < 0) {
-                this.score = Math.max(0, this.score);
 
-            }
-            this.updateScore(this.score);
-        //    this.sound.play('hit_by_enemies_sound');
-        }
-        else {
-            this.score -= 15;
-            this.updateScore(this.score);
-        //    this.sound.play('hit_by_enemies_sound');
-        }
-    }
 
     changeScore(score) {
         if (score < 0) {
@@ -114,25 +97,6 @@ class CatchTreats extends Phaser.Scene {
         
     }
 
-
-    spawnEnemies() {
-
-       
-        this.random_enemy_key = this.enemies_keys[Math.floor(Math.random() * this.enemies_keys.length)];
-
-        const random_x = Phaser.Math.Between(45, 400 - 90);
-
-        const enemy = this.enemies.create(random_x, 70, this.random_enemy_key);
-
-        enemy.setVelocityY(120);
-
-        
-
-
-
-
-
-    }
 
     updateScore(score) {
         
@@ -172,8 +136,7 @@ class CatchTreats extends Phaser.Scene {
             loop: true
         });
 
-       // this.candy_keys = ['twix', 'milky_way_candy', '3_musketeers', '100_grand'];
-       
+    
         this.candies_to_score_ = {'twix':50, 'milky_way_candy':20, '3_musketeers':15, '100_grand':20};
         this.candy_keys = Object.keys(this.candies_to_score_);
         
@@ -199,14 +162,6 @@ class CatchTreats extends Phaser.Scene {
         });
 
 
-     //   this.time.addEvent({
-     //       delay:1000,
-     //       callback:this.spawnEnemies,
-     //       callbackScope:this,
-     //       loop:true
-     //   });
-
-        
     }
     
         onEvent() {
