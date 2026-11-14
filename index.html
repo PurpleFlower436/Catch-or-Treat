@@ -35,7 +35,7 @@
                 }
             },
             backgroundColor: '#F28C28',
-            scene: [CatchTreats, GameOver]
+            scene: [TitleScreen, CatchTreats, GameOver]
         };
 
         var game = new Phaser.Game(config);
@@ -47,7 +47,7 @@
 
         function create ()
         {
-            this.scene.start('catch_treats_minigame');
+            this.scene.start('title_screen');
         }
 
         function update()

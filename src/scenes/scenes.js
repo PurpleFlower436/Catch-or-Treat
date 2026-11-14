@@ -1,10 +1,63 @@
 
 // whats left to finish up:
-// 1. rewrite the candy add points code so it uses lookup table 
 // 2. add spooky halloween music 
-// 3. finish title screen 
 // 4. destroy candies and apples that fall at the bottom 
 // 5. add background 
+// 6. add the function that gives you the movie recommendation based on your score 
+
+
+
+class TitleScreen extends Phaser.Scene {
+
+    constructor() 
+    {
+        super('title_screen');
+    }
+
+    preload()
+    {
+        this.game_over_panel = this.add.rectangle(200, 250, 330, 330, 0x2E1B4A);
+        this.game_title = this.add.text(60, 170, 'CATCH OR TREAT', {fontSize: 34, color: '#FFB02E'});
+        
+        this.subheading = this.add.text(50, 220, 'Catch the candy, dodge the raisins!', {fontSize: 15}); 
+        
+        this.instructions = this.add.text(50, 260, 'Use the left and right arrow keys \nto move!', {fontSize: 15});
+        
+        this.add.text(150, 330, 'Start', {fontSize: '20px', fill:'#2A1208', backgroundColor: '#FFB02E'})
+        .setPadding(20)
+        .setInteractive({useHandCursor: true})
+        
+        .on('pointerdown', () => {
+            this.scene.start('catch_treats_minigame');
+        })
+    }
+    
+
+    create()
+    {
+
+    }
+
+    update()
+    {
+
+    }
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -27,9 +80,7 @@ class CatchTreats extends Phaser.Scene {
 
         this.load.image('goody_bag', 'assets/trick_or_treat_goody-bag.png')
 
-        this.load.image('apple', 'assets/apple.png');
-        this.load.image('raisin_box', 'assets/raisin_box.png')
-
+        
         this.load.audio('collect_candies_sound', 'assets/collect_candies_sound.wav');
 
      //   this.load.audio('hit_by_enemies_sound', 'assets/hit_by_enemy_sound.mp3');
@@ -92,7 +143,7 @@ class CatchTreats extends Phaser.Scene {
        
         const candy = this.candies.create(random_x, 70, this.random_candy_key);
 
-        candy.setVelocityY(120);
+        candy.setVelocityY(200);
 
         
     }
@@ -123,7 +174,7 @@ class CatchTreats extends Phaser.Scene {
 
         this.player.setCollideWorldBounds(true);
 
-        this.timer = 120;
+        this.timer = 70;
         this.timer_string_format = this.add.text(10, 10, 'Time:' + this.timeFormat(this.timer), {
             fontSize: '32px',
             fill: '#ffffff'
