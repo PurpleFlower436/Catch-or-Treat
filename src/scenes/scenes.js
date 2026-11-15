@@ -1,9 +1,4 @@
 
-// whats left to finish up:
-// 2. add spooky halloween music 
-// 4. destroy candies and apples that fall at the bottom 
-// 6. add the function that gives you the movie recommendation based on your score 
-
 
 
 class TitleScreen extends Phaser.Scene {
@@ -90,7 +85,8 @@ class CatchTreats extends Phaser.Scene {
         this.load.audio('collect_candies_sound', 'assets/collect_candies_sound.mp3');
 
      //   this.load.audio('hit_by_enemies_sound', 'assets/hit_by_enemy_sound.mp3');
-
+        
+        this.load.audio('background_music', 'assets/background_music.mp3');
 
     }
 
@@ -215,6 +211,7 @@ class CatchTreats extends Phaser.Scene {
     create() 
     {
 
+        this.sound.play('background_music', {volume: 0.2}); 
         this.add.image(0, 0, 'spooky_background').setOrigin(0,0).setDisplaySize(this.sys.game.config.width, this.sys.game.config.height);
         
         this.movement_keys = this.input.keyboard.addKeys({
@@ -300,10 +297,10 @@ class CatchTreats extends Phaser.Scene {
     {
         
         if (this.movement_keys.left.isDown) {
-            this.player.setVelocityX(-120);
+            this.player.setVelocityX(-200);
         }
         else if (this.movement_keys.right.isDown) {
-            this.player.setVelocityX(120);
+            this.player.setVelocityX(200);
         }
         else {
             this.player.setVelocityX(0);
