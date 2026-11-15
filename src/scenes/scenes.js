@@ -2,7 +2,6 @@
 // whats left to finish up:
 // 2. add spooky halloween music 
 // 4. destroy candies and apples that fall at the bottom 
-// 5. add background 
 // 6. add the function that gives you the movie recommendation based on your score 
 
 
@@ -70,6 +69,9 @@ class CatchTreats extends Phaser.Scene {
 
     preload ()
     {
+
+        this.load.image('spooky_background', 'assets/spooky_background.jpg');
+
         this.load.image('3_musketeers', 'assets/3_musketeers.png');
 
         this.load.image('100_grand', 'assets/100_grand.png');
@@ -78,10 +80,14 @@ class CatchTreats extends Phaser.Scene {
 
         this.load.image('twix', 'assets/twix.png');
 
-        this.load.image('goody_bag', 'assets/trick_or_treat_goody-bag.png')
+        this.load.image('goody_bag', 'assets/trick_or_treat_goody-bag.png');
+
+        this.load.image('apple', 'assets/apple.png');
+
+        this.load.image('raisin_box', 'assets/raisin_box.png');
 
         
-        this.load.audio('collect_candies_sound', 'assets/collect_candies_sound.wav');
+        this.load.audio('collect_candies_sound', 'assets/collect_candies_sound.mp3');
 
      //   this.load.audio('hit_by_enemies_sound', 'assets/hit_by_enemy_sound.mp3');
 
@@ -108,9 +114,12 @@ class CatchTreats extends Phaser.Scene {
 
     collectCandies(player, candy ) {
 
+        
         const candy_key = candy.texture.key;
         const candy_point_value = this.candies_to_score_[candy_key];
+        
         candy.destroy();
+        this.sound.play('collect_candies_sound');
         
        
         this.score += candy_point_value;
@@ -119,6 +128,23 @@ class CatchTreats extends Phaser.Scene {
       
        
         
+    }
+
+    hitByEnemies(player, enemy) {
+
+        const enemy_key = enemy.texture.key;
+        const enemy_point_value = this.enemies_to_score[enemy_key];
+        
+        enemy.destroy();
+        
+        
+        
+        this.score -= enemy_point_value;
+        this.changeScore(this.score);
+        this.updateScore(this.score);
+
+
+
     }
 
 
@@ -131,6 +157,18 @@ class CatchTreats extends Phaser.Scene {
     }
 
 
+    spawnItems() {
+        const spawn_rate = Math.random();
+        console.log(spawn_rate);
+        if (spawn_rate > 0.50 ) {
+            this.spawnCandies();
+
+        }
+        else {
+            this.spawnEnemies();
+        }
+
+    }
 
 
     spawnCandies() {
@@ -139,13 +177,29 @@ class CatchTreats extends Phaser.Scene {
 
         this.random_candy_key = this.candy_keys[Math.floor(Math.random() * this.candy_keys.length)];
        
-        const random_x = Phaser.Math.Between(45, 400-90);
+        const random_x = Phaser.Math.Between(45, 600-90);
        
         const candy = this.candies.create(random_x, 70, this.random_candy_key);
 
         candy.setVelocityY(200);
 
         
+    }
+
+
+    spawnEnemies() {
+
+        this.random_enemy_key = this.enemies_keys[Math.floor(Math.random() * this.enemies_keys.length)];
+       
+        const random_x = Phaser.Math.Between(45, 600-90);
+       
+        const enemy = this.enemies.create(random_x, 70, this.random_enemy_key);
+
+        enemy.setVelocityY(200);
+
+
+
+
     }
 
 
@@ -161,7 +215,7 @@ class CatchTreats extends Phaser.Scene {
     create() 
     {
 
-     
+        this.add.image(0, 0, 'spooky_background').setOrigin(0,0).setDisplaySize(this.sys.game.config.width, this.sys.game.config.height);
         
         this.movement_keys = this.input.keyboard.addKeys({
             'left': Phaser.Input.Keyboard.KeyCodes.LEFT,
@@ -177,7 +231,7 @@ class CatchTreats extends Phaser.Scene {
         this.timer = 70;
         this.timer_string_format = this.add.text(10, 10, 'Time:' + this.timeFormat(this.timer), {
             fontSize: '32px',
-            fill: '#ffffff'
+            fill: '#2B0B3F'
         });
     
         this.time.addEvent({
@@ -195,7 +249,9 @@ class CatchTreats extends Phaser.Scene {
 
         this.physics.add.overlap(this.player, this.candies, this.collectCandies, null, this);
             
-        this.enemies_keys = ['apple', 'raisin_box'];
+        this.enemies_to_score = {'apple': 70, 'raisin_box': 50};
+
+        this.enemies_keys = Object.keys(this.enemies_to_score);
 
         this.enemies = this.physics.add.group();
         
@@ -203,17 +259,27 @@ class CatchTreats extends Phaser.Scene {
 
         this.score = 0;
 
+       
+
         
-        this.score_string_format = this.add.text(265, 30, 'Score:', this.score);
+        this.score_string_format = this.add.text(480, 15, 'Score:', this.score, {
+            fontSize: '40px',
+            fill: '#2B0B3F'
+        });
+
+
         this.time.addEvent({
             delay: 1000,
-            callback: this.spawnCandies,
+            callback: this.spawnItems,
             callbackScope: this,
             loop: true
         });
 
+       
 
     }
+
+        
     
         onEvent() {
             
@@ -221,7 +287,6 @@ class CatchTreats extends Phaser.Scene {
             this.timer_string_format.setText('Time:' + this.timeFormat(this.timer));
             
             if (this.timer == 0) {
-                console.log(this.score);
                 this.scene.start('game_over_screen', this.score);
             }
         }
