@@ -205,12 +205,34 @@ class CatchTreats extends Phaser.Scene {
         
     }
 
+  
 
+
+    movieRecommendations(score) {
+        if ( score >= 60 && score <= 80) {
+            this.movie_title = "Hocus Pocus";
+            return this.movie_title
+        } else if (score >= 90 && score <= 120) {
+            this.movie_title = "Coraline";
+            return this.movie_title;
+        } else if (score >= 130 && score <= 150) {
+            this.movie_title = "Talk to Me";
+            return this.movie_title;
+        } else if (score >= 160 && score <= 170) {
+            this.movie_title = "The Conjuring";
+            return this.movie_title;
+        } else { 
+            this.movie_title = "Scream VI";
+            return this.movie_title;
+        }
+
+
+    }
 
 
     create() 
     {
-
+        
         this.sound.play('background_music', {volume: 0.2}); 
         this.add.image(0, 0, 'spooky_background').setOrigin(0,0).setDisplaySize(this.sys.game.config.width, this.sys.game.config.height);
         
@@ -220,10 +242,13 @@ class CatchTreats extends Phaser.Scene {
         });
     
     
-        this.player = this.physics.add.sprite(300, 554, 'goody_bag');
+        this.player = this.physics.add.sprite(300, 300, 'goody_bag');
 
+     
 
-        this.player.setCollideWorldBounds(true);
+        this.player.setCollideWorldBounds(true);    
+        
+
 
         this.timer = 70;
         this.timer_string_format = this.add.text(10, 10, 'Time:' + this.timeFormat(this.timer), {
@@ -244,6 +269,9 @@ class CatchTreats extends Phaser.Scene {
         
         this.candies = this.physics.add.group();
 
+       
+
+
         this.physics.add.overlap(this.player, this.candies, this.collectCandies, null, this);
             
         this.enemies_to_score = {'apple': 70, 'raisin_box': 50};
@@ -256,11 +284,10 @@ class CatchTreats extends Phaser.Scene {
 
         this.score = 0;
 
-       
-
+        this.movie_title = "";
         
-        this.score_string_format = this.add.text(480, 15, 'Score:', this.score, {
-            fontSize: '40px',
+        this.score_string_format = this.add.text(450, 15, 'Score: 0', {
+            fontSize: '25px',
             fill: '#2B0B3F'
         });
 
@@ -284,7 +311,11 @@ class CatchTreats extends Phaser.Scene {
             this.timer_string_format.setText('Time:' + this.timeFormat(this.timer));
             
             if (this.timer == 0) {
-                this.scene.start('game_over_screen', this.score);
+                this.sound.stopAll();
+                this.movieRecommendations(this.score);
+                this.scene.start('game_over_screen', 
+                {score: this.score, movie_title: this.movie_title
+                });
             }
         }
     
@@ -295,7 +326,7 @@ class CatchTreats extends Phaser.Scene {
 
     update() 
     {
-        
+        console.log("Update is running! Candies count:", this.candies.getLength());
         if (this.movement_keys.left.isDown) {
             this.player.setVelocityX(-200);
         }
@@ -308,9 +339,17 @@ class CatchTreats extends Phaser.Scene {
 
         
 
-        
+        [...this.candies.getChildren()].forEach((candy) => {
+            if (candy.y  + (candy.displayHeight / 2) >= 600) {
+                candy.destroy();
+            }
+        });
 
-
+        [...this.enemies.getChildren()].forEach((enemy) => {
+            if (enemy.y + (enemy.displayHeight / 2) >= 600) {
+                enemy.destroy();
+            }
+        });
 
 
     }
@@ -328,7 +367,8 @@ class GameOver extends Phaser.Scene {
 
     init(data) {
        
-        this.score = data;
+        this.score = data.score;
+        this.movie_title = data.movie_title;
     }
 
 
@@ -339,7 +379,7 @@ class GameOver extends Phaser.Scene {
 
     create() {
         
-        this.game_over_panel = this.add.rectangle(200, 250, 320, 320, 0x2E1B4A);
+        this.game_over_panel = this.add.rectangle(300, 270, 500, 500, 0x2E1B4A);
         this.score_box = this.add.rectangle(200, 190, 200, 100, 0x120A1E).setStrokeStyle(3, 0xFFB02E);
         this.score_label = this.add.text(160, 110, 'Score', {fontSize: 28});
         
@@ -347,7 +387,10 @@ class GameOver extends Phaser.Scene {
         
         this.movie_box = this.add.rectangle(200, 325, 230, 60, 0x20113A).setStrokeStyle(2, 0x5B3A8A);
         this.move_label = this.add.text(100,272, 'Your Halloween movie:', {fontSize: 14});
-    
+        
+        
+        this.movie_title_text = this.add.text(115, 280, `${this.movie_title}`);
+
         this.add.text(150, 370, 'Play Again', {fill:'#FFB02E'})
         .setInteractive({useHandCursor: true})
         .on('pointerdown', () => {
