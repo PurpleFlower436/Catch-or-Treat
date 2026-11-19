@@ -243,25 +243,31 @@ class CatchTreats extends Phaser.Scene {
         
     }
 
+    /**
+     * Chooses a Halloween movie to recommend based on the player's final
+     * score, stores it in this.movie_title, and returns it. The movies form a
+     * ladder from gentlest to scariest as the score goes up, with no gaps:
+     * under 150 gets "Hocus Pocus", 150-349 "Coraline", 350-599 "Talk to Me",
+     * 600-799 "The Conjuring", and 800 or more gets "Scream VI". The cutoffs
+     * are sized for the current point values and the 70-second round, so
+     * adjust them if you change the scoring or the spawn rate.
+     *
+     * @param {number} score - The player's final score.
+     * @returns {string} The title of the recommended movie.
+     */
     movieRecommendations(score) {
-        if ( score >= 60 && score <= 80) {
+        if ( score < 150) {
             this.movie_title = "Hocus Pocus";
-            return this.movie_title
-        } else if (score >= 90 && score <= 120) {
+        } else if (score < 350) {
             this.movie_title = "Coraline";
-            return this.movie_title;
-        } else if (score >= 130 && score <= 150) {
+        } else if (score < 600) {
             this.movie_title = "Talk to Me";
-            return this.movie_title;
-        } else if (score >= 160 && score <= 170) {
+        } else if (score < 800) {
             this.movie_title = "The Conjuring";
-            return this.movie_title;
         } else { 
             this.movie_title = "Scream VI";
-            return this.movie_title;
         }
-
-
+        return this.movie_title;
     }
 
     /**
