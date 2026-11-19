@@ -30,8 +30,7 @@
             physics: {
                 default: 'arcade',
                 arcade: {
-                    gravity: {y: 300},
-                    debug: false
+                    debug: false,
                 }
             },
             backgroundColor: '#F28C28',
@@ -47,7 +46,7 @@
 
         function create ()
         {
-            this.scene.start('title_screen');
+            this.scene.start('game_over_screen');
         }
 
         function update()

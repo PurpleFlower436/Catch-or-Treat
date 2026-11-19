@@ -1,8 +1,12 @@
-
-
-
+/**
+ * Title screen scene. Shows the game title, a short tagline, the controls,
+ * and a Start button that launches the main game scene.
+ */
 class TitleScreen extends Phaser.Scene {
-
+     /**
+     * Registers this scene with Phaser under the key 'title_screen'
+     * so other scenes can switch to it with this.scene.start('title_screen').
+     */
     constructor() 
     {
         super('title_screen');
@@ -10,58 +14,66 @@ class TitleScreen extends Phaser.Scene {
 
     preload()
     {
-        this.game_over_panel = this.add.rectangle(200, 250, 330, 330, 0x2E1B4A);
-        this.game_title = this.add.text(60, 170, 'CATCH OR TREAT', {fontSize: 34, color: '#FFB02E'});
         
-        this.subheading = this.add.text(50, 220, 'Catch the candy, dodge the raisins!', {fontSize: 15}); 
+    }
+    
+    /**
+     * Builds the title screen UI: the purple panel, the game title, the
+     * tagline, the controls text, and the Start button. Clicking Start
+     * switches to the 'catch_treats_minigame' scene.
+     */
+
+    create()
+    {
+        this.game_over_panel = this.add.rectangle(300, 270, 450, 450, 0x2E1B4A);
+        this.game_title = this.add.text(90, 170, 'CATCH OR TREAT', {fontSize: 50, color: '#FFB02E'});
         
-        this.instructions = this.add.text(50, 260, 'Use the left and right arrow keys \nto move!', {fontSize: 15});
+        this.subheading = this.add.text(100, 220, 'Catch the candy, dodge the raisins!', {fontSize: 20}); 
         
-        this.add.text(150, 330, 'Start', {fontSize: '20px', fill:'#2A1208', backgroundColor: '#FFB02E'})
-        .setPadding(20)
+        this.instructions = this.add.text(90, 260, 'Use the left and right arrow keys \nto move!', {fontSize: 22});
+        
+        this.add.text(230, 330, 'Start', {fontSize: '30px', fill:'#2A1208', backgroundColor: '#FFB02E'})
+        .setPadding(30)
         .setInteractive({useHandCursor: true})
         
         .on('pointerdown', () => {
             this.scene.start('catch_treats_minigame');
         })
     }
-    
 
-    create()
-    {
-
-    }
-
+    /**
+     * Runs every frame. Currently empty because the title screen has
+     * nothing that needs per-frame updates.
+     */
     update()
     {
 
     }
-
-
-
-
-
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
+/**
+ * Main gameplay scene. Candies and hazards (apples and raisin boxes) fall
+ * from the top of the screen, and the player moves a goody bag left and right
+ * to catch candy for points while dodging the hazards. A countdown timer ends
+ * the round and sends the player to the game over screen with their score and
+ * a movie recommendation.
+ */
 class CatchTreats extends Phaser.Scene {
 
+    /**
+     * Registers this scene with Phaser under the key 'catch_treats_minigame'.
+     */
     constructor ()
     {
         super('catch_treats_minigame');
     }
 
+    /**
+     * Loads every asset the game needs before create() runs: the background,
+     * the four candy images, the goody bag, the two hazard images, and the
+     * sound effects and background music.
+     */
     preload ()
     {
 
@@ -81,32 +93,40 @@ class CatchTreats extends Phaser.Scene {
 
         this.load.image('raisin_box', 'assets/raisin_box.png');
 
-        
         this.load.audio('collect_candies_sound', 'assets/collect_candies_sound.mp3');
-
-     //   this.load.audio('hit_by_enemies_sound', 'assets/hit_by_enemy_sound.mp3');
         
         this.load.audio('background_music', 'assets/background_music.mp3');
 
     }
 
+    /**
+     * Converts a number of seconds into a zero-padded "MM:SS" string
+     * for the countdown display (for example, 70 becomes "01:10").
+     *
+     * @param {number} time - The time in seconds.
+     * @returns {string} The formatted time as "MM:SS".
+     */
     timeFormat(time) {
-
-            
-            
-        
         const minutes = Math.floor(time/ 60);
     
         const seconds = Math.floor(time % 60);
     
         const padded_minutes = String(minutes).padStart(2, '0');
         const padded_seconds = String(seconds).padStart(2, '0');
-        
-        
+    
         return `${padded_minutes}:${padded_seconds}`;
 
     }
 
+    /**
+     * Overlap callback that runs when the goody bag touches a candy.
+     * Looks up the candy's point value from its texture key, destroys the
+     * candy, plays the collect sound, adds the points to the score, and
+     * refreshes the score text.
+     *
+     * @param {Phaser.Physics.Arcade.Sprite} player - The goody bag sprite.
+     * @param {Phaser.Physics.Arcade.Sprite} candy - The candy that was caught.
+     */
 
     collectCandies(player, candy ) {
 
@@ -120,12 +140,18 @@ class CatchTreats extends Phaser.Scene {
        
         this.score += candy_point_value;
         this.updateScore(this.score);
-        
-      
-       
-        
+  
     }
 
+    /**
+     * Overlap callback that runs when the goody bag touches a hazard
+     * (apple or raisin box). Looks up the hazard's penalty from its texture
+     * key, destroys the hazard, subtracts the penalty from the score, keeps
+     * the score from going below zero, and refreshes the score text.
+     *
+     * @param {Phaser.Physics.Arcade.Sprite} player - The goody bag sprite.
+     * @param {Phaser.Physics.Arcade.Sprite} enemy - The hazard that hit the bag.
+     */
     hitByEnemies(player, enemy) {
 
         const enemy_key = enemy.texture.key;
@@ -133,29 +159,32 @@ class CatchTreats extends Phaser.Scene {
         
         enemy.destroy();
         
-        
-        
         this.score -= enemy_point_value;
-        this.changeScore(this.score);
+        this.clampScore(this.score);
         this.updateScore(this.score);
-
-
 
     }
 
-
-
-    changeScore(score) {
+     /**
+     * Keeps the score from going negative. If the score passed in is below
+     * zero, the stored score is reset to 0; otherwise it does nothing.
+     *
+     * @param {number} score - The score after a penalty has been subtracted.
+     */
+    clampScore(score) {
         if (score < 0) {
             this.score = Math.max(0, score);
             
         }
     }
 
-
+    /**
+     * Called by the spawn timer once per second. Rolls a random number and
+     * spawns a candy about half the time, or a hazard otherwise. Using one
+     * timer for both means only one item appears per tick.
+     */
     spawnItems() {
         const spawn_rate = Math.random();
-        console.log(spawn_rate);
         if (spawn_rate > 0.50 ) {
             this.spawnCandies();
 
@@ -166,10 +195,12 @@ class CatchTreats extends Phaser.Scene {
 
     }
 
-
+    /**
+     * Spawns one random candy at the top of the screen. Picks a random candy
+     * type and a random x position, adds it to the candies group, and applies
+     * gravity so it speeds up as it falls.
+     */
     spawnCandies() {
-
-        
 
         this.random_candy_key = this.candy_keys[Math.floor(Math.random() * this.candy_keys.length)];
        
@@ -177,12 +208,15 @@ class CatchTreats extends Phaser.Scene {
        
         const candy = this.candies.create(random_x, 70, this.random_candy_key);
 
-        candy.setVelocityY(200);
-
+        candy.setGravityY(400);
         
     }
 
-
+    /**
+     * Spawns one random hazard (apple or raisin box) at the top of the screen.
+     * Picks a random hazard type and a random x position, adds it to the
+     * enemies group, and gives it a constant downward speed.
+     */
     spawnEnemies() {
 
         this.random_enemy_key = this.enemies_keys[Math.floor(Math.random() * this.enemies_keys.length)];
@@ -198,15 +232,16 @@ class CatchTreats extends Phaser.Scene {
 
     }
 
-
+     /**
+     * Updates the score text on screen so it shows the given score.
+     *
+     * @param {number} score - The score to display.
+     */
     updateScore(score) {
         
         this.score_string_format.setText('Score:'+ `${score}`);
         
     }
-
-  
-
 
     movieRecommendations(score) {
         if ( score >= 60 && score <= 80) {
@@ -229,7 +264,14 @@ class CatchTreats extends Phaser.Scene {
 
     }
 
-
+    /**
+     * Sets up the game once assets are loaded: starts the background music,
+     * draws the background, sets up the arrow keys, creates the goody bag
+     * (with a hitbox around its opening, no gravity, and world bounds),
+     * starts the 70-second countdown, defines the candy and hazard point
+     * tables and groups, registers the overlap callbacks, creates the score
+     * text, and starts the timer that spawns a new item every second.
+     */
     create() 
     {
         
@@ -242,9 +284,13 @@ class CatchTreats extends Phaser.Scene {
         });
     
     
-        this.player = this.physics.add.sprite(300, 300, 'goody_bag');
+        this.player = this.physics.add.sprite(300, 500, 'goody_bag');
 
-     
+        this.player.body.setSize(100, 35);
+
+        this.player.body.setOffset(70, 62);
+
+        this.player.body.setAllowGravity(false);
 
         this.player.setCollideWorldBounds(true);    
         
@@ -268,9 +314,6 @@ class CatchTreats extends Phaser.Scene {
         this.candy_keys = Object.keys(this.candies_to_score_);
         
         this.candies = this.physics.add.group();
-
-       
-
 
         this.physics.add.overlap(this.player, this.candies, this.collectCandies, null, this);
             
@@ -299,39 +342,45 @@ class CatchTreats extends Phaser.Scene {
             loop: true
         });
 
-       
-
     }
 
-        
-    
-        onEvent() {
-            
-            this.timer -= 1
-            this.timer_string_format.setText('Time:' + this.timeFormat(this.timer));
-            
-            if (this.timer == 0) {
-                this.sound.stopAll();
-                this.movieRecommendations(this.score);
-                this.scene.start('game_over_screen', 
-                {score: this.score, movie_title: this.movie_title
-                });
-            }
-        }
-    
-        
-    
-    
-    
 
+    /**
+     * Countdown tick that runs once per second. Decreases the timer by
+     * one and updates the timer text. When the timer reaches 0, stops all
+     * sounds, picks a movie recommendation from the score, and switches to
+     * the game over screen, passing along the score and the movie title.
+     */      
+
+    onEvent() {
+        
+        this.timer -= 1
+        this.timer_string_format.setText('Time:' + this.timeFormat(this.timer));
+        
+        if (this.timer == 0) {
+            this.sound.stopAll();
+            this.movieRecommendations(this.score);
+            this.scene.start('game_over_screen', 
+            {score: this.score, movie_title: this.movie_title
+            });
+        }
+    }
+    
+        
+    /**
+     * Runs every frame. Moves the goody bag left or right at 300 pixels per
+     * second while an arrow key is held (and stops it when neither is held),
+     * and destroys any candy or hazard that has fallen past the bottom of the
+     * screen so they don't pile up.
+     */
     update() 
     {
-        console.log("Update is running! Candies count:", this.candies.getLength());
+       
         if (this.movement_keys.left.isDown) {
-            this.player.setVelocityX(-200);
+            this.player.setVelocityX(-300);
         }
         else if (this.movement_keys.right.isDown) {
-            this.player.setVelocityX(200);
+            this.player.setVelocityX(300);
         }
         else {
             this.player.setVelocityX(0);
@@ -356,15 +405,26 @@ class CatchTreats extends Phaser.Scene {
 
 }
 
-
+/**
+ * Game over scene. Shows the player's final score, the recommended
+ * Halloween movie, and a Play Again button that returns to the title screen.
+ */
 class GameOver extends Phaser.Scene {
 
-
+    /**
+     * Registers this scene with Phaser under the key 'game_over_screen'.
+     */
     constructor() {
         super('game_over_screen');
     }
 
-
+    /**
+     * Receives the data passed from the gameplay scene when this scene starts
+     * and saves the final score and movie title so create() can display them.
+     *
+     * @param {{score: number, movie_title: string}} data - The final score
+     *     and the recommended movie title sent by CatchTreats.
+     */
     init(data) {
        
         this.score = data.score;
@@ -372,32 +432,49 @@ class GameOver extends Phaser.Scene {
     }
 
 
-
-    preload () {
+    /**
+     * Runs before create(). Currently empty because this scene has no
+     * assets of its own to load.
+     */
+    preload () 
+    {
 
     }
 
+    /**
+     * Builds the game over screen: the purple panel, the score label and
+     * score box, the movie recommendation box and label, and a Play Again
+     * button that switches back to the title screen when clicked.
+     */
     create() {
         
-        this.game_over_panel = this.add.rectangle(300, 270, 500, 500, 0x2E1B4A);
-        this.score_box = this.add.rectangle(200, 190, 200, 100, 0x120A1E).setStrokeStyle(3, 0xFFB02E);
-        this.score_label = this.add.text(160, 110, 'Score', {fontSize: 28});
+        this.game_over_panel = this.add.rectangle(300, 270, 450, 450, 0x2E1B4A);
+        this.score_box = this.add.rectangle(300, 205, 300, 100, 0x120A1E).setStrokeStyle(3, 0xFFB02E);
+        this.score_label = this.add.text(210, 110, 'Score', {fontSize: 50});
         
-        this.score_string = this.add.text(170, 175, `${this.score}`, {fontSize: 40});
+        this.score_string = this.add.text(190, 185, `${this.score}`, {fontSize: 40});
         
-        this.movie_box = this.add.rectangle(200, 325, 230, 60, 0x20113A).setStrokeStyle(2, 0x5B3A8A);
-        this.move_label = this.add.text(100,272, 'Your Halloween movie:', {fontSize: 14});
+        this.movie_box = this.add.rectangle(300, 370, 300, 100, 0x20113A).setStrokeStyle(2, 0x5B3A8A);
+        this.move_label = this.add.text(150,290, 'Your Halloween movie:', {fontSize: 25});
         
         
-        this.movie_title_text = this.add.text(115, 280, `${this.movie_title}`);
+        this.movie_title_text = this.add.text(180, 360, `${this.movie_title}`, {fontSize: 40});
 
-        this.add.text(150, 370, 'Play Again', {fill:'#FFB02E'})
+    
+
+        this.add.text(220, 430, 'Play Again', {fontSize: '20px', fill:'#2A1208', backgroundColor: '#FFB02E'})
+        .setPadding(20)
         .setInteractive({useHandCursor: true})
+        
         .on('pointerdown', () => {
             this.scene.start('title_screen');
         })
     }
 
+    /**
+     * Runs every frame. Currently empty because the game over screen has
+     * nothing that needs per-frame updates.
+     */
     update() 
     {
 
