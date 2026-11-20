@@ -3,6 +3,14 @@
 ## Project Overview
 Catch or Treat is a browser-based Phaser game built with JavaScript. In the game, players catch candy to earn points while avoiding hazards that subtract from their score. The game includes real-time scoring, randomized item spawning, a 70-second round timer, and an end-of-game recommendation system that suggests a Halloween movie based on the player’s final score. I built this project to strengthen my JavaScript skills, practice game logic and state management, and create a fun interactive browser game from scratch.
 
+## Demo
+
+
+https://github.com/user-attachments/assets/df3d160e-d6bc-4d9e-a9c6-83ac74afefce
+
+
+
+
 ## Features
 - Built in Phaser with JavaScript for browser-based gameplay
 - 5 candy types with texture-based point values
